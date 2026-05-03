@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial=1.0">
+    <title>文字变色切换</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{
+            width: 100vw;
+            height: 100vh;
+            /* 上下左右完全居中 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+        #txt{
+            font-size: 60px;   /* 超大字体 */
+            font-weight: bold;
+            text-align: center;
+            transition: color 0.5s ease; /* 颜色过渡顺滑 */
+        }
+    </style>
+</head>
+<body>
+    <div id="txt"></div>
+
+<script>
+// 文字列表
+let textList = [
+    "喝过百事可乐吗",
+    "你个傻吊",
+    "滚出去"
+];
+// 颜色列表 自动轮换
+let colorList = ["#ff3333","#33cc33","#3399ff","#ffff33","#cc33ff","#ff9900"];
+let t = document.getElementById("txt");
+let i = 0, c = 0;
+
+function change(){
+    t.innerText = textList[i];
+    t.style.color = colorList[c];
+    i = (i+1) % textList.length;
+    c = (c+1) % colorList.length;
+}
+change();
+
+setInterval(change,800);
+</script>
+</body>
+</html>
