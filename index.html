@@ -33,7 +33,20 @@
             font-weight: bold;
             letter-spacing: 6px;
             margin: 8px 0;
+            transition: opacity 1s ease-in-out;
             animation: rainbow 2s linear infinite;
+            color: #fff;
+        }
+        .text-group-2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
 
         @keyframes rainbow {
@@ -47,8 +60,16 @@
 </head>
 <body> 
     <canvas class="star-bg" id="starCanvas"></canvas>
-    <div class="text">祝某某某</div>
-    <div class="text">生日快乐</div>
+
+    <!-- 第一组文字：初始显示 -->
+    <div class="text" id="text1">祝某某某</div>
+    <div class="text" id="text2">生日快乐</div>
+
+    <!-- 第二组文字：1秒后显示 -->
+    <div class="text-group-2" id="group2">
+        <div class="text">希望你</div>
+        <div class="text">在以后能够</div>
+    </div>
 
     <script>
         const canvas = document.getElementById('starCanvas');
@@ -68,7 +89,7 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.radius = Math.random() * 0.5 + 0.5;
+                this.radius = Math.random() *0.5 + 0.5;
                 this.alpha = Math.random();
                 this.speed = Math.random() * 0.02 + 0.01;
             }
@@ -86,22 +107,19 @@
             }
         }
 
-        // 新增：流星类
+        // 流星类
         class Meteor {
             constructor() {
-                // 从屏幕上方随机位置生成
                 this.x = Math.random() * canvas.width;
                 this.y = 0;
-                // 流星长度和速度
-                this.length = Math.random() * 300 + 50;
+                this.length = Math.random() * 80 + 50;
                 this.speed = Math.random() * 10 + 8;
-                this.angle = Math.PI / 4; // 45度角划过
+                this.angle = Math.PI / 4;
                 this.alpha = 1;
             }
             draw() {
                 ctx.save();
                 ctx.beginPath();
-                // 流星拖尾效果
                 ctx.moveTo(this.x, this.y);
                 ctx.lineTo(
                     this.x - this.length * Math.cos(this.angle),
@@ -118,13 +136,11 @@
                 this.y += this.speed * Math.sin(this.angle);
                 this.alpha -= 0.02;
             }
-            // 流星飞出屏幕就移除
             isOffScreen() {
                 return this.x < 0 || this.y > canvas.height || this.alpha <= 0;
             }
         }
 
-        // 初始化星星
         function initStars(num = 220) {
             stars = [];
             for (let i = 0; i < num; i++) {
@@ -133,27 +149,19 @@
         }
         initStars();
 
-        // 定时生成流星
         function spawnMeteor() {
-            if (Math.random() < 0.01) { // 控制流星出现频率，数值越大越频繁
+            if (Math.random() < 0.01) {
                 meteors.push(new Meteor());
             }
         }
 
-        // 动画循环
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 更新+绘制星星
             stars.forEach(star => {
                 star.update();
                 star.draw();
             });
-
-            // 生成流星
             spawnMeteor();
-
-            // 更新+绘制流星
             for (let i = meteors.length - 1; i >= 0; i--) {
                 const meteor = meteors[i];
                 meteor.update();
@@ -162,10 +170,19 @@
                     meteors.splice(i, 1);
                 }
             }
-
             requestAnimationFrame(animate);
         }
         animate();
+
+        // 1秒后切换文字（修复版）
+        setTimeout(() => {
+            document.getElementById('text1').style.opacity = '0';
+            document.getElementById('text2').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('group2').style.opacity = '1';
+            }, 500);
+        }, 1000);
     </script>
 </body>
 </html>
