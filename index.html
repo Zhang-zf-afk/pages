@@ -49,6 +49,22 @@
             transition: opacity 1s ease;
         }
 
+        /* 祝福语弹窗 */
+        .wish-box {
+            position: fixed;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 999;
+            animation: fadeIn 0.6s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @keyframes fadeIn {
+            from{opacity:0; transform:scale(0.3);}
+            to{opacity:1; transform:scale(1);}
+        }
+
         @keyframes rainbow {
             0% { color: #ff3366; text-shadow: 0 0 10px #ff3366; }
             25% { color: #ffcc00; text-shadow: 0 0 10px #ffcc00; }
@@ -61,14 +77,12 @@
 <body> 
     <canvas class="star-bg" id="starCanvas"></canvas>
 
-    <!-- 第一组文字：初始显示 -->
     <div class="text" id="text1">祝某某某</div>
     <div class="text" id="text2">生日快乐</div>
 
-    <!-- 第二组文字：1秒后显示 -->
     <div class="text-group-2" id="group2">
-        <div class="text" style="font-size: 60px">祝愿你</div>
-        <div class="text" style="font-size: 20px">在以后能够</div>
+        <div class="text" style="font-size:60px;">祝愿你</div>
+        <div class="text" style="font-size:20px;">在以后能够</div>
     </div>
 
     <script>
@@ -84,7 +98,6 @@
         resize();
         window.addEventListener('resize', resize);
 
-        // 星星类
         class Star {
             constructor() {
                 this.x = Math.random() * canvas.width;
@@ -107,7 +120,6 @@
             }
         }
 
-        // 流星类
         class Meteor {
             constructor() {
                 this.x = Math.random() * canvas.width;
@@ -174,15 +186,77 @@
         }
         animate();
 
-        // 1秒后切换文字（修复版）
+        // 文字切换
         setTimeout(() => {
             document.getElementById('text1').style.opacity = '0';
             document.getElementById('text2').style.opacity = '0';
             
             setTimeout(() => {
                 document.getElementById('group2').style.opacity = '1';
+                // 第二段出现1秒后，大量弹窗
+                setTimeout(() => {
+                    startRandomWishes();
+                }, 1000);
             }, 500);
         }, 1000);
+
+        // 超多祝福语库
+        const wishes = [
+            "天天开心", "永远幸福", "平安喜乐", "万事顺意",
+            "身体健康", "心想事成", "无忧无虑", "前程似锦",
+            "暴富变美", "好运连连", "笑口常开", "岁岁无忧",
+            "未来可期", "一路繁花", "平安顺遂", "快乐加倍",
+            "日子滚烫", "万事胜意", "岁岁平安", "步步生花",
+            "眼里有光", "心中有爱", "不负时光", "不负自己"
+        ];
+
+        function startRandomWishes() {
+            // 改成 60个 超多弹窗，铺满全屏
+            for(let i = 0; i < 60; i++){
+                setTimeout(()=>{
+                    createWish();
+                }, i * 30); // 弹出更快，密密麻麻
+            }
+        }
+
+        function createWish(){
+            const box = document.createElement('div');
+            box.className = 'wish-box';
+
+            // 随机文案
+            const text = wishes[Math.floor(Math.random() * wishes.length)];
+            box.innerText = text;
+
+            // 随机全屏位置
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            box.style.left = x + 'px';
+            box.style.top = y + 'px';
+
+            // 随机大小
+            const size = 14 + Math.random() * 12;
+            box.style.fontSize = size + 'px';
+
+            // 随机温柔渐变背景
+            const colors = [
+                'rgba(255,154,162,0.85)',
+                'rgba(255,218,193,0.85)',
+                'rgba(162,196,255,0.85)',
+                'rgba(187,245,205,0.85)',
+                'rgba(221,187,255,0.85)',
+                'rgba(255,240,185,0.85)'
+            ];
+            box.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+            document.body.appendChild(box);
+
+            // 改成 6秒才消失，停留很久
+            setTimeout(()=>{
+                box.style.opacity = "0";
+                box.style.transition = "opacity 1.5s";
+                setTimeout(()=> box.remove(), 1500);
+            }, 6000);
+        }
     </script>
 </body>
 </html>
