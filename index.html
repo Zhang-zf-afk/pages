@@ -51,30 +51,30 @@
     <div class="text">生日快乐</div>
 
     <script>
-        // ✅ 修复 1：ID 写错了
         const canvas = document.getElementById('starCanvas');
         const ctx = canvas.getContext('2d');
-        let stars = []; // ✅ 修复 2：变量名统一
+        let stars = [];
+        let meteors = [];
 
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
         resize();
-        window.addEventListener('resize', resize); // ✅ 修复 3：window 小写
+        window.addEventListener('resize', resize);
 
+        // 星星类
         class Star {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.radius = Math.random() * 4 + 0.5;
+                this.radius = Math.random() * 1.5 + 0.5;
                 this.alpha = Math.random();
                 this.speed = Math.random() * 0.02 + 0.01;
             }
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                // ✅ 修复 4：模板字符串必须用反引号 `
                 ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
                 ctx.fill();
             }
@@ -86,6 +86,45 @@
             }
         }
 
+        // 新增：流星类
+        class Meteor {
+            constructor() {
+                // 从屏幕上方随机位置生成
+                this.x = Math.random() * canvas.width;
+                this.y = 0;
+                // 流星长度和速度
+                this.length = Math.random() * 300 + 50;
+                this.speed = Math.random() * 10 + 8;
+                this.angle = Math.PI / 4; // 45度角划过
+                this.alpha = 1;
+            }
+            draw() {
+                ctx.save();
+                ctx.beginPath();
+                // 流星拖尾效果
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(
+                    this.x - this.length * Math.cos(this.angle),
+                    this.y + this.length * Math.sin(this.angle)
+                );
+                ctx.strokeStyle = `rgba(255,255,255,${this.alpha})`;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                ctx.restore();
+            }
+            update() {
+                this.x -= this.speed * Math.cos(this.angle);
+                this.y += this.speed * Math.sin(this.angle);
+                this.alpha -= 0.02;
+            }
+            // 流星飞出屏幕就移除
+            isOffScreen() {
+                return this.x < 0 || this.y > canvas.height || this.alpha <= 0;
+            }
+        }
+
+        // 初始化星星
         function initStars(num = 220) {
             stars = [];
             for (let i = 0; i < num; i++) {
@@ -94,12 +133,36 @@
         }
         initStars();
 
+        // 定时生成流星
+        function spawnMeteor() {
+            if (Math.random() < 0.01) { // 控制流星出现频率，数值越大越频繁
+                meteors.push(new Meteor());
+            }
+        }
+
+        // 动画循环
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 更新+绘制星星
             stars.forEach(star => {
                 star.update();
                 star.draw();
             });
+
+            // 生成流星
+            spawnMeteor();
+
+            // 更新+绘制流星
+            for (let i = meteors.length - 1; i >= 0; i--) {
+                const meteor = meteors[i];
+                meteor.update();
+                meteor.draw();
+                if (meteor.isOffScreen()) {
+                    meteors.splice(i, 1);
+                }
+            }
+
             requestAnimationFrame(animate);
         }
         animate();
